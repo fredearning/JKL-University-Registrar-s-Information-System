@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JKL University Registrar's Information System Prototype</title>
+    <style>
+        :root {
+            --primary-color: #1a365d;
+            --primary-light: #2a4365;
+            --secondary-color: #d69e2e;
+            --accent-color: #3182ce;
+            --bg-light: #f7fafc;
+            --sidebar-bg: #2d3748;
+            --text-dark: #2d3748;
+            --text-light: #f7fafc;
+            --border-color: #e2e8f0;
+            --success: #38a169;
+            --warning: #dd6b20;
+            --danger: #e53e3e;
+            --info: #3182ce;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Login Screen Styles */
+        #login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #2d3748 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        .login-header h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .login-header p {
+            color: #718096;
+            margin-bottom: 30px;
+        }
+
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .role-card {
+            background: #edf2f7;
+            border: 2px solid transparent;
+            border-radius: 6px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .role-card:hover {
+            border-color: var(--accent-color);
+            background: #e2e8f0;
+            transform: translateY(-2px);
+        }
+
+        .role-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .role-title {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .role-desc {
+            font-size: 12px;
+            color: #4a5568;
+        }
+
+        /* Main App Layout */
+        #app-layout {
+            display: none;
+            width: 100%;
+            height: 100%;
+            grid-template-columns: 260px 1fr;
+        }
+
+        /* Sidebar Styles */
+        sidebar {
+            background-color: var(--sidebar-bg);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sidebar-brand {
+            padding: 20px;
+            background-color: #1a202c;
+            text-align: center;
+            border-bottom: 1px solid #4a5568;
+        }
+
+        .sidebar-brand h2 {
+            font-size: 18px;
+            color: var(--secondary-color);
+            letter-spacing: 1px;
+        }
+
+        .sidebar-user {
+            padding: 15px 20px;
+            background-color: #232d3d;
+            border-bottom: 1px solid #4a5568;
+            font-size: 14px;
+        }
+
+        .sidebar-user .user-role-badge {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-top: 5px;
+            text-transform: uppercase;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            flex-grow: 1;
+            padding-top: 15px;
+        }
+
+        .sidebar-menu li a {
+            display: block;
+            padding: 12px 20px;
+            color: #cbd5e0;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar-menu li a:hover, .sidebar-menu li.active a {
+            background-color: #4a5568;
+            color: white;
+            border-left-color: var(--secondary-color);
+        }
+
+        .sidebar-footer {
+            padding: 15px 20px;
+            background-color: #1a202c;
+        }
+
+        .btn-logout {
+            width: 100%;
+            background-color: #e53e3e;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-logout:hover {
+            background-color: #c53030;
+        }
+
+        /* Main Content Workspace */
+        main {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: white;
+            padding: 15px 30px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h2 {
+            color: var(--primary-color);
+            font-size: 20px;
+        }
+
+        .workspace {
+            padding: 30px;
+            overflow-y: auto;
+            flex-grow: 1;
+            background-color: #f7fafc;
+        }
+
+        .dashboard-section {
+            display: none;
+        }
+
+        .dashboard-section.active {
+            display: block;
+        }
+
+        /* UI Elements Styles */
+        .card-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-top: 4px solid var(--primary-color);
+        }
+
+        .metric-card.success { border-top-color: var(--success); }
+        .metric-card.warning { border-top-color: var(--warning); }
+        .metric-card.danger { border-top-color: var(--danger); }
+
+        .metric-title {
+            font-size: 12px;
+            color: #718096;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--text-dark);
+            margin-top: 5px;
+        }
+
+        /* Tables */
+        .table-container {
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .table-header {
+            padding: 15px 20px;
+            background: #edf2f7;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-header h3 {
+            font-size: 16px;
+            color: var(--primary-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #f7fafc;
+            color: #4a5568;
+            font-weight: bold;
+            padding: 12px 20px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        td {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-color);
+            color: #4a5568;
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .badge-pending { background-color: #feebc8; color: #c05621; }
+        .badge-approved { background-color: #c6f6d5; color: #22543d; }
+        .badge-verified { background-color: #e2e8f0; color: #4a5568; }
+        .badge-rejected { background-color: #fed7d7; color: #9b2c2c; }
+        .badge-paid { background-color: #ebf8ff; color: #2b6cb0; }
+        .badge-released { background-color: #ebf8ff; color: #2c5282; }
+        .badge-active { background-color: #c6f6d5; color: #22543d; }
+        .badge-probation { background-color: #feebc8; color: #c05621; }
+        .badge-dismissed { background-color: #fed7d7; color: #9b2c2c; }
+
+        /* Forms */
+        .form-container {
+            background: white;
+            padding: 25px;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #4a5568;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: #fff;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            transition: background 0.2s;
+            text-align: center;
+        }
+
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-primary:hover { background-color: var(--primary-light); }
+        .btn-success { background-color: var(--success); color: white; }
+        .btn-success:hover { background-color: #2f855a; }
+        .btn-danger { background-color: var(--danger); color: white; }
+        .btn-danger:hover { background-color: #c53030; }
+        .btn-secondary { background-color: #718096; color: white; }
+        .btn-secondary:hover { background-color: #4a5568; }
+
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 11px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 12px 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .alert-success { background-color: #c6f6d5; color: #22543d; border-left: 4px solid var(--success); }
+        .alert-info { background-color: #ebf8ff; color: #2b6cb0; border-left: 4px solid var(--info); }
+
+        /* Report Mock Representation */
+        .report-preview {
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 40px;
+            border-radius: 4px;
+            margin-top: 20px;
+            min-height: 300px;
+        }
+
+        .report-header-mock {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 15px;
+        }
+
+        .subject-checkbox-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 4px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .subject-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>JKL University Registrar's Information System</h1>
+                <p>Centralized Database & Academic Record Management Prototype (Simulated Environment)</p>
+                <div style="font-size: 13px; color: #e53e3e; background: #fffaf0; padding: 10px; border-radius: 4px; margin-bottom: 20px; font-weight: bold;">
+                    Presentation Note: Click any module profile card below to launch the role's dashboard configuration and test functional end-to-end processing loops.
+                </div>
+            </div>
+            <div class="role-grid">
+                <div class="role-card" onclick="loginAs('student', 'Juan Dela Cruz', 'Student ID: 2024-0042')">
+                    <div class="role-icon">🎓</div>
+                    <div class="role-title">Student Dashboard</div>
+                    <div class="role-desc">Submit Registration Form, View Academic Grades, Initiate Document Requests</div>
+                </div>
+                <div class="role-card" onclick="loginAs('adviser', 'Prof. Maria Santos', 'Adviser ID: ADV-1022')">
+                    <div class="role-icon">📋</div>
+                    <div class="role-title">Academic Adviser Dashboard</div>
+                    <div class="role-desc">Review Pending Digital Registration Requests, Track Prerequisites, Approve Workflows</div>
+                </div>
+                <div class="role-card" onclick="loginAs('instructor', 'Dr. Ricardo Gomez', 'Instructor ID: INST-3091')">
+                    <div class="role-icon">📝</div>
+                    <div class="role-title">Instructor Dashboard</div>
+                    <div class="role-desc">Digital Grade Sheet Submission, Automated Limit Adjustments, Validation Hook Verification</div>
+                </div>
+                <div class="role-card" onclick="loginAs('cashier', 'Elena Roxas', 'Cashier ID: CASH-4011')">
+                    <div class="role-icon">💵</div>
+                    <div class="role-title">Cashier Dashboard</div>
+                    <div class="role-desc">Verify External Document Charges, Handle Financial Status Triggers, Post Verifications</div>
+                </div>
+                <div class="role-card" onclick="loginAs('registrar', 'Amelia Villanueva', 'Registrar Code: REG-0001')">
+                    <div class="role-icon">🏛️</div>
+                    <div class="role-title">Registrar Dashboard</div>
+                    <div class="role-desc">Manage Centralized Student Profile States, Process Releases, Handle Document Authorizations</div>
+                </div>
+                <div class="role-card" onclick="loginAs('admin', 'System Administrator', 'Admin Terminal: ADM-99')">
+                    <div class="role-icon">⚙️</div>
+                    <div class="role-title">Administrator Dashboard</div>
+                    <div class="role-desc">Consolidate Dynamic Audits, Compile CHED Regulatory Compliance Metrics, Aggregate System Summary Logs</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-layout">
+        <sidebar>
+            <div>
+                <div class="sidebar-brand">
+                    <h2>JKL UNIVERSITY</h2>
+                    <small style="font-size: 10px; color: #a0aec0;">REGISTRAR INFORMATION SYSTEM</small>
+                </div>
+                <div class="sidebar-user">
+                    <div id="current-user-display" style="font-weight: bold;">User Name</div>
+                    <div id="current-user-role-badge" class="user-role-badge">Role</div>
+                </div>
+                <ul class="sidebar-menu" id="dynamic-menu">
+                    </ul>
+            </div>
+            <div class="sidebar-footer">
+                <button class="btn-logout" onclick="logout()">Exit Prototype View</button>
+            </div>
+        </sidebar>
+
+        <main>
+            <header>
+                <h2 id="current-view-title">Dashboard View</h2>
+                <div style="font-size: 12px; font-weight: bold; color: var(--secondary-color); background: #fffaf0; padding: 6px 12px; border: 1px solid #fbd38d; border-radius: 4px;">
+                    🎯 Active Presentation Mode: Dynamic Cross-Table Update Enabled
+                </div>
+            </header>
+
+            <div class="workspace">
+                <div id="global-alert-success" class="alert alert-success">Action executed successfully. Centralized state tables altered in database layout.</div>
+                <div id="global-alert-info" class="alert alert-info">Dynamic notice logged down successfully.</div>
+
+                <div id="student-dashboard" class="dashboard-section">
+                    <div class="card-metrics">
+                        <div class="metric-card"><div class="metric-title">Current Enrollment Status</div><div class="metric-value" id="stud-enroll-status-badge"><span class="badge badge-pending">Pending Approval</span></div></div>
+                        <div class="metric-card"><div class="metric-title">Registered Degree Course</div><div class="metric-value" style="font-size: 18px; margin-top: 10px;">BS Information Technology</div></div>
+                        <div class="metric-card"><div class="metric-title">Year Level Classification</div><div class="metric-value">2nd Year</div></div>
+                    </div>
+                    
+                    <div class="form-container">
+                        <h3>Digital Enrollment Management Module</h3>
+                        <p style="font-size: 13px; color: #718096; margin-bottom: 15px;">Select subjects for submission to your assigned academic adviser. Prerequisite evaluation and structural section capacities are validated concurrently by system automation constraints.</p>
+                        <form id="enrollment-form" onsubmit="submitEnrollment(event)">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Academic Year Term</label>
+                                    <select required><option>First Semester, 2026-2027</option></select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Assigned Curriculum Advisor</label>
+                                    <select required><option>Prof. Maria Santos</option></select>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label>Available Subjects Checklist</label>
+                                <div class="subject-checkbox-list">
+                                    <div class="subject-item"><input type="checkbox" checked disabled> <span>IT-211: Database Management Systems (3 Units)</span></div>
+                                    <div class="subject-item"><input type="checkbox" checked disabled> <span>IT-212: Web Development Architectures (3 Units)</span></div>
+                                    <div class="subject-item"><input type="checkbox" id="sub3"> <span>IT-213: Advanced Data Structures & Logic Design (3 Units)</span></div>
+                                    <div class="subject-item"><input type="checkbox" id="sub4"> <span>IT-214: Discrete Mathematics for Computing Applications (3 Units)</span></div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="enroll-submit-btn">Submit Digital Registration Form</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="student-grades" class="dashboard-section">
+                    <div class="table-container">
+                        <div class="table-header"><h3>Academic Transcript Grade View Module</h3></div>
+                        <table>
+                            <thead>
+                                <tr><th>Subject Code</th><th>Subject Description</th><th>Units</th><th>Final Mark</th><th>Remarks</th></tr>
+                            </thead>
+                            <tbody id="student-grades-tbody">
+                                <tr><td>IT-121</td><td>Computer Hardware & IT Essentials</td><td>3</td><td>1.25</td><td><span class="badge badge-approved">Passed</span></td></tr>
+                                <tr><td>IT-122</td><td>Introduction to Logic Design Theory</td><td>3</td><td>1.75</td><td><span class="badge badge-approved">Passed</span></td></tr>
+                                <tr><td>IT-211</td><td>Database Management Systems</td><td>3</td><td id="mock-grade-cell">--</td><td id="mock-remark-cell"><span class="badge badge-pending">Pending Instructor Submission</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="student-requests" class="dashboard-section">
+                    <div class="form-container">
+                        <h3>Document Request Processing Module</h3>
+                        <p style="font-size: 13px; color: #718096; margin-bottom: 15px;">Initiate formal document orders. The transaction requires cross-verification by Cashier handlers before document preparation triggers are authorized.</p>
+                        <form onsubmit="submitRequest(event)">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Required Academic Document</label>
+                                    <select id="req-doc-type"><option value="Transcript of Records">Official Transcript of Records (TOR)</option><option value="Certification">Certificate of Registration (COR)</option></select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Standard Filing Charge</label>
+                                    <input type="text" value="PHP 150.00" readonly>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">File Request Order</button>
+                        </form>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="table-header"><h3>Active Tracking Matrix</h3></div>
+                        <table>
+                            <thead>
+                                <tr><th>Request ID</th><th>Document Requested</th><th>Filing Date</th><th>Payment Verification Status</th><th>Office Release Status</th></tr>
+                            </thead>
+                            <tbody id="student-requests-tbody">
+                                <tr><td>REQ-8821</td><td>Transcript of Records</td><td>2026-05-15</td><td><span class="badge badge-approved">Verified</span></td><td><span class="badge badge-released">Released</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="adviser-dashboard" class="dashboard-section">
+                    <div class="table-container">
+                        <div class="table-header"><h3>Enrollment Approval Workflow Queue</h3></div>
+                        <table>
+                            <thead>
+                                <tr><th>Student ID</th><th>Applicant Name</th><th>Degree Program</th><th>Year</th><th>Status Status</th><th>Action Processing</th></tr>
+                            </thead>
+                            <tbody id="adviser-queue-tbody">
+                                <tr id="adviser-row-1">
+                                    <td>2024-0042</td>
+                                    <td>Juan Dela Cruz</td>
+                                    <td>BS Information Technology</td>
+                                    <td>2nd Year</td>
+                                    <td><span class="badge badge-pending" id="adv-row-status-badge">Pending Review</span></td>
+                                    <td>
+                                        <div class="action-buttons" id="adv-actions-wrapper">
+                                            <button class="btn btn-success btn-sm" onclick="processEnrollmentAdv(true)">Approve Form</button>
+                                            <button class="btn btn-danger btn-sm" onclick="processEnrollmentAdv(false)">Reject Form</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="instructor-dashboard" class="dashboard-section">
+                    <div class="form-container">
+                        <h3>Digital Grade Sheet Submission Panel</h3>
+                        <p style="font-size: 13px; color: #718096; margin-bottom: 15px;">Submit final numerical marks for active students. Upon validation, entries populate the centralized Grade Records store.</p>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Assigned Course Subject</label>
+                                <select><option>IT-211: Database Management Systems</option></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Target Student Target</label>
+                                <select><option>Juan Dela Cruz (ID: 2024-0042)</option></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Numerical Grade Value</label>
+                                <input type="number" step="0.01" id="input-numerical-grade" placeholder="e.g. 1.50" min="1.00" max="5.00">
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="submitGradeInstructor()">Commit Grade Entry</button>
+                    </div>
+                </div>
+
+                <div id="cashier-dashboard" class="dashboard-section">
+                    <div class="table-container">
+                        <div class="table-header"><h3>Cashier Office Payment Verification Queue</h3></div>
+                        <table>
+                            <thead>
+                                <tr><th>Trans ID</th><th>Request Reference</th><th>Student ID</th><th>Amount Due</th><th>Payment Status</th><th>Action Processing</th></tr>
+                            </thead>
+                            <tbody id="cashier-queue-tbody">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="registrar-records" class="dashboard-section">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3>Student Academic Records Management Database</h3>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr><th>Student ID</th><th>Full Student Name</th><th>Course Program</th><th>Year Level</th><th>Academic Standing Status</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>2024-0042</td><td>Juan Dela Cruz</td><td>BS Information Technology</td><td>2nd Year</td><td><span class="badge badge-active" id="registrar-standing-badge">Good Standing</span></td></tr>
+                                <tr><td>2023-0112</td><td>Jane Soriano</td><td>BS Business Administration</td><td>3rd Year</td><td><span class="badge badge-probation">Probation</span></td></tr>
+                                <tr><td>2022-0904</td><td>Mark Refugio</td><td>BS Engineering</td><td>4th Year</td><td><span class="badge badge-dismissed">Dismissed</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="registrar-requests" class="dashboard-section">
+                    <div class="table-container">
+                        <div class="table-header"><h3>Document Release Authorization Queue</h3></div>
+                        <table>
+                            <thead>
+                                <tr><th>Request ID</th><th>Student ID</th><th>Document Classification</th><th>Payment Trigger Status</th><th>Office Processing</th><th>Execution Actions</th></tr>
+                            </thead>
+                            <tbody id="registrar-release-tbody">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="admin-reports" class="dashboard-section">
+                    <div class="form-container">
+                        <h3>Automated Institutional Report Generation Module</h3>
+                        <p style="font-size: 13px; color: #718096; margin-bottom: 15px;">Compile real-time structured data reports for institutional auditing, accreditation compliance, and CHED regulatory submissions without manual alignment inefficiencies.</p>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Target Output Category</label>
+                                <select id="admin-report-select">
+                                    <option value="enrollment">University Enrollment Statistics Summary</option>
+                                    <option value="ched">CHED Regulatory Compliance Report Audit</option>
+                                    <option value="academic">General Academic Standing Aggregate</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="triggerReportCompilation()">Compile System Report</button>
+                        <button class="btn btn-secondary" onclick="window.print()">Print Output Document</button>
+                    </div>
+
+                    <div class="report-preview" id="report-output-wrapper" style="display:none;">
+                        </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Global Shared Data Mock Store (Simulates Central Database Engine)
+        let systemState = {
+            enrollmentStatus: "Pending Approval", 
+            grades: {
+                value: "--",
+                remark: "Pending Instructor Submission"
+            },
+            requests: [
+                { id: "REQ-8821", type: "Transcript of Records", date: "2026-05-15", payment: "Verified", release: "Released" }
+            ],
+            payments: []
+        };
+
+        const menus = {
+            student: [
+                { title: "Digital Enrollment Form", view: "student-dashboard" },
+                { title: "View Term Grades", view: "student-grades" },
+                { title: "File Document Requests", view: "student-requests" }
+            ],
+            adviser: [
+                { title: "Enrollment Evaluation Workflow", view: "adviser-dashboard" }
+            ],
+            instructor: [
+                { title: "Faculty Grade Entry Panel", view: "instructor-dashboard" }
+            ],
+            cashier: [
+                { title: "Financial Payment Verifications", view: "cashier-dashboard" }
+            ],
+            registrar: [
+                { title: "Centralized Records Management", view: "registrar-records" },
+                { title: "Document Release Desk", view: "registrar-requests" }
+            ],
+            admin: [
+                { title: "Report Generation Workspace", view: "admin-reports" }
+            ]
+        };
+
+        function loginAs(role, name, detailsId) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-layout').style.display = 'grid';
+            
+            document.getElementById('current-user-display').innerText = name;
+            document.getElementById('current-user-role-badge').innerText = role;
+            
+            // Re-render Dynamic Navigation Context Nodes
+            const menuContainer = document.getElementById('dynamic-menu');
+            menuContainer.innerHTML = '';
+            
+            menus[role].forEach((item, index) => {
+                const li = document.createElement('li');
+                if(index === 0) li.className = 'active';
+                li.innerHTML = `<a href="#" onclick="switchWorkspaceTab(this, '${item.view}', '${item.title}')">${item.title}</a>`;
+                menuContainer.appendChild(li);
+            });
+
+            // Auto-route execution target focus path
+            switchWorkspaceTab(null, menus[role][0].view, menus[role][0].title);
+            synchronizeUIRenderStates();
+        }
+
+        function logout() {
+            document.getElementById('app-layout').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'flex';
+        }
+
+        function switchWorkspaceTab(element, viewId, title) {
+            if(element) {
+                const items = document.querySelectorAll('#dynamic-menu li');
+                items.forEach(li => li.classList.remove('active'));
+                element.parentElement.classList.add('active');
+            }
+            
+            const sections = document.querySelectorAll('.dashboard-section');
+            sections.forEach(sec => sec.classList.remove('active'));
+            
+            document.getElementById(viewId).classList.add('active');
+            document.getElementById('current-view-title').innerText = title;
+            hideDynamicAlerts();
+        }
+
+        function triggerFlashAlert(typeId, messageText) {
+            const el = document.getElementById(typeId);
+            el.innerText = messageText;
+            el.style.display = 'block';
+            setTimeout(() => { el.style.display = 'none'; }, 6000);
+        }
+
+        function hideDynamicAlerts() {
+            document.getElementById('global-alert-success').style.display = 'none';
+            document.getElementById('global-alert-info').style.display = 'none';
+        }
+
+        function synchronizeUIRenderStates() {
+            // Student View Synch UI Sync Elements
+            const enrollBadge = document.getElementById('stud-enroll-status-badge');
+            if(systemState.enrollmentStatus === "Pending Approval") {
+                enrollBadge.innerHTML = '<span class="badge badge-pending">Pending Advisor Approval</span>';
+            } else if(systemState.enrollmentStatus === "Approved") {
+                enrollBadge.innerHTML = '<span class="badge badge-approved">Enrollment Confirmed</span>';
+            } else {
+                enrollBadge.innerHTML = '<span class="badge badge-rejected">Enrollment Rejected</span>';
+            }
+
+            document.getElementById('mock-grade-cell').innerText = systemState.grades.value;
+            if(systemState.grades.value !== "--") {
+                let remarkColor = parseFloat(systemState.grades.value) <= 3.0 ? 'badge-approved' : 'badge-rejected';
+                document.getElementById('mock-remark-cell').innerHTML = `<span class="badge ${remarkColor}">${systemState.grades.remark}</span>`;
+            }
+
+            // Sync Table Rows across queues
+            const studReqTbody = document.getElementById('student-requests-tbody');
+            studReqTbody.innerHTML = `<tr><td>REQ-8821</td><td>Transcript of Records</td><td>2026-05-15</td><td><span class="badge badge-approved">Verified</span></td><td><span class="badge badge-released">Released</span></td></tr>`;
+            
+            systemState.requests.forEach(r => {
+                if(r.id === "REQ-8821") return;
+                let payBadge = `<span class="badge badge-pending">${r.payment}</span>`;
+                if(r.payment === "Verified") payBadge = `<span class="badge badge-approved">Verified</span>`;
+                if(r.payment === "Rejected") payBadge = `<span class="badge badge-rejected">Rejected</span>`;
+
+                let relBadge = `<span class="badge badge-pending">${r.release}</span>`;
+                if(r.release === "Paid") relBadge = `<span class="badge badge-paid">Awaiting Release</span>`;
+                if(r.release === "Released") relBadge = `<span class="badge badge-released">Released</span>`;
+
+                studReqTbody.innerHTML += `<tr><td>${r.id}</td><td>${r.type}</td><td>${r.date}</td><td>${payBadge}</td><td>${relBadge}</td></tr>`;
+            });
+
+            // Adviser Sync UI Queue Form Rendering
+            const advBadge = document.getElementById('adv-row-status-badge');
+            const advWrapper = document.getElementById('adv-actions-wrapper');
+            if(systemState.enrollmentStatus === "Pending Approval") {
+                advBadge.className = "badge badge-pending";
+                advBadge.innerText = "Pending Review";
+                advWrapper.style.display = "flex";
+            } else if(systemState.enrollmentStatus === "Approved") {
+                advBadge.className = "badge badge-approved";
+                advBadge.innerText = "Approved & Processed";
+                advWrapper.style.display = "none";
+            } else {
+                advBadge.className = "badge badge-rejected";
+                advBadge.innerText = "Rejected/Returned";
+                advWrapper.style.display = "none";
+            }
+
+            // Cashier Sync Table Layout Matrix Queue
+            const cashierTbody = document.getElementById('cashier-queue-tbody');
+            cashierTbody.innerHTML = '';
+            const pendingPayments = systemState.requests.filter(x => x.payment === "Pending");
+            if(pendingPayments.length === 0) {
+                cashierTbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#718096;">No document request balance accounts currently pending verification check.</td></tr>';
+            } else {
+                pendingPayments.forEach((p, idx) => {
+                    cashierTbody.innerHTML += `<tr>
+                        <td>TXN-90${idx+1}</td>
+                        <td>${p.id} (${p.type})</td>
+                        <td>2024-0042</td>
+                        <td>PHP 150.00</td>
+                        <td><span class="badge badge-pending">Awaiting Audit</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-success btn-sm" onclick="processPaymentCashier('${p.id}', true)">Verify Payment</button>
+                                <button class="btn btn-danger btn-sm" onclick="processPaymentCashier('${p.id}', false)">Reject</button>
+                            </div>
+                        </td>
+                    </tr>`;
+                });
+            }
+
+            // Registrar UI Sync Queue Data Layout Nodes
+            const regTbody = document.getElementById('registrar-release-tbody');
+            regTbody.innerHTML = '';
+            const activeRegReqs = systemState.requests.filter(x => x.payment === "Verified" && x.release !== "Released");
+            if(activeRegReqs.length === 0) {
+                regTbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#718096;">No paid document orders ready for preparation or release.</td></tr>';
+            } else {
+                activeRegReqs.forEach(r => {
+                    regTbody.innerHTML += `<tr>
+                        <td>${r.id}</td>
+                        <td>2024-0042</td>
+                        <td>${r.type}</td>
+                        <td><span class="badge badge-approved">Confirmed Verified</span></td>
+                        <td><span class="badge badge-paid">Ready for Dispatch</span></td>
+                        <td><button class="btn btn-primary btn-sm" onclick="releaseDocumentReg('${r.id}')">Authorize Physical Release</button></td>
+                    </tr>`;
+                });
+            }
+        }
+
+        // Action Handlers
+        function submitEnrollment(e) {
+            e.preventDefault();
+            systemState.enrollmentStatus = "Pending Approval";
+            document.getElementById('enroll-submit-btn').innerText = "Resubmit Updated Registration Form";
+            triggerFlashAlert('global-alert-success', 'Digital Registration Form submitted to Adviser queue loop successfully.');
+            synchronizeUIRenderStates();
+        }
+
+        function processEnrollmentAdv(isApproved) {
+            systemState.enrollmentStatus = isApproved ? "Approved" : "Rejected";
+            triggerFlashAlert('global-alert-success', `Enrollment selection state successfully configured to: ${systemState.enrollmentStatus.toUpperCase()}.`);
+            synchronizeUIRenderStates();
+        }
+
+        function submitGradeInstructor() {
+            const gradeVal = document.getElementById('input-numerical-grade').value;
+            if(!gradeVal) {
+                alert('Please input a valid mathematical grading metric before attempting submit.');
+                return;
+            }
+            const numeric = parseFloat(gradeVal);
+            systemState.grades.value = numeric.toFixed(2);
+            systemState.grades.remark = numeric <= 3.0 ? "Passed" : "Failed";
+            
+            triggerFlashAlert('global-alert-success', 'Numerical grade sheet processed down through database system validations securely.');
+            synchronizeUIRenderStates();
+        }
+
+        function submitRequest(e) {
+            e.preventDefault();
+            const docType = document.getElementById('req-doc-type').value;
+            const newId = "REQ-" + Math.floor(1000 + Math.random() * 9000);
+            
+            systemState.requests.push({
+                id: newId,
+                type: docType,
+                date: new Date().toISOString().split('T')[0],
+                payment: "Pending",
+                release: "Pending"
+            });
+
+            triggerFlashAlert('global-alert-info', `Document order ${newId} initialized. Forwarded over to Cashier station queues.`);
+            synchronizeUIRenderStates();
+        }
+
+        function processPaymentCashier(reqId, verifySuccess) {
+            const match = systemState.requests.find(x => x.id === reqId);
+            if(match) {
+                match.payment = verifySuccess ? "Verified" : "Rejected";
+                match.release = verifySuccess ? "Paid" : "Pending";
+            }
+            triggerFlashAlert('global-alert-success', `Financial transaction ledger record linked up for request transaction: ${reqId}.`);
+            synchronizeUIRenderStates();
+        }
+
+        function releaseDocumentReg(reqId) {
+            const match = systemState.requests.find(x => x.id === reqId);
+            if(match) {
+                match.release = "Released";
+            }
+            triggerFlashAlert('global-alert-success', `Document file asset released to target recipient student party. Transaction state closed.`);
+            synchronizeUIRenderStates();
+        }
+
+        function triggerReportCompilation() {
+            const type = document.getElementById('admin-report-select').value;
+            const rWrapper = document.getElementById('report-output-wrapper');
+            rWrapper.style.display = 'block';
+
+            let titleText = "";
+            let htmlPayload = "";
+
+            if(type === 'enrollment') {
+                titleText = "JKL University Registrar Statistics Report";
+                htmlPayload = `
+                    <p style="margin-bottom:15px;"><strong>Active Dynamic Metric Target Summary (Database Scan)</strong></p>
+                    <table style="margin-bottom:20px;">
+                        <thead><tr><th>Academic Program College</th><th>Active Count</th><th>Term Period</th></tr></thead>
+                        <tbody>
+                            <tr><td>College of Information Technology</td><td>1,240 Students</td><td>1st Semester 2026</td></tr>
+                            <tr><td>College of Engineering</td><td>980 Students</td><td>1st Semester 2026</td></tr>
+                            <tr><td>College of Business Administration</td><td>1,100 Students</td><td>1st Semester 2026</td></tr>
+                            <tr><td>College of Education</td><td>680 Students</td><td>1st Semester 2026</td></tr>
+                        </tbody>
+                    </table>
+                    <div style="background:#edf2f7; padding:15px; font-size:12px; border-radius:4px;">
+                        <strong>Centralized Verification Audit:</strong> Automated query execution confirmed exact matching parity with zero disconnected spreadsheet cells detected across records post-2005.
+                    </div>`;
+            } else if(type === 'ched') {
+                titleText = "CHED Regulatory Compliance Report Matrix";
+                htmlPayload = `
+                    <p style="margin-bottom:15px; color:#e53e3e;"><strong>Regulatory Tracking Parameter Logs (CHED Memorandum Order Conformance)</strong></p>
+                    <table style="margin-bottom:20px;">
+                        <thead><tr><th>Evaluation Metric Field</th><th>Status Compliance Flag</th><th>Last Run Timestamp</th></tr></thead>
+                        <tbody>
+                            <tr><td>National Student Database Unique Keys Mapping</td><td><span class="badge badge-approved">100% Compliant</span></td><td>Real-Time Scan</td></tr>
+                            <tr><td>Curriculum Prerequisites Auto-Check Hooks</td><td><span class="badge badge-approved">Active System Enforced</span></td><td>Real-Time Scan</td></tr>
+                            <tr><td>Grade Sheet Signature Archival Validation</td><td><span class="badge badge-approved">Digitally Locked</span></td><td>Real-Time Scan</td></tr>
+                        </tbody>
+                    </table>`;
+            } else {
+                titleText = "General Academic Standing Aggregation File";
+                htmlPayload = `
+                    <p style="margin-bottom:15px;"><strong>Consolidated Registrar Profile Metrics Index</strong></p>
+                    <ul>
+                        <li>Total Active Records Scored: 4,000 Academic Student Profiles</li>
+                        <li>Good Standing Metric Count: 3,820 Profiles</li>
+                        <li>Academic Warning / Probation Count: 145 Profiles</li>
+                        <li>Dismissed Separation Action Profiles Tracker: 35 Profiles</li>
+                    </ul>`;
+            }
+
+            rWrapper.innerHTML = `
+                <div class="report-header-mock">
+                    <h2>${titleText}</h2>
+                    <p style="font-size:12px; color:#718096; margin-top:5px;">Generated by JKL Central Core System Node Infrastructure</p>
+                </div>
+                <div>${htmlPayload}</div>
+            `;
+            triggerFlashAlert('global-alert-success', 'Centralized data fields parsed down cleanly. Report layout matrix generated below.');
+        }
+    </script>
+</body>
+</html>
